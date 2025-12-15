@@ -1,202 +1,3 @@
-# import cv2
-# import numpy as np
-
-# # -------------------------------
-# # Load Haar cascades
-# # -------------------------------
-# face_cascade = cv2.CascadeClassifier('D:/Documents/Study/DADN/haarcascade_frontalface_default.xml')
-# eye_cascade = cv2.CascadeClassifier('D:/Documents/Study/DADN/haarcascade_eye_tree_eyeglasses.xml')
-
-# if face_cascade.empty():
-#     raise IOError("Face cascade not found.")
-# if eye_cascade.empty():
-#     raise IOError("Eye cascade not found.")
-
-# # -------------------------------
-# # Optical Flow Parameters
-# # -------------------------------
-# lk_params = dict(
-#     winSize=(15, 15),
-#     maxLevel=2,
-#     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03)
-# )
-
-# feature_params = dict(
-#     maxCorners=80,
-#     qualityLevel=0.3,
-#     minDistance=5,
-#     blockSize=3
-# )
-
-
-
-# def estimate_direction(flow_vectors):
-#     if len(flow_vectors) == 0:
-#         return "Unknown"
-
-#     flow_vectors = np.array(flow_vectors)
-
-#     # Remove noise (very small movements)
-#     mag = np.linalg.norm(flow_vectors, axis=1)
-#     flow_vectors = flow_vectors[mag > 0.03]  # threshold noise
-
-#     if len(flow_vectors) == 0:
-#         return "Center"
-
-#     # Use median instead of mean
-#     dx = np.median(flow_vectors[:, 0])
-#     dy = np.median(flow_vectors[:, 1])
-
-#     # Thresholds adapted for eye movement
-#     threshold_x = 0.20
-#     threshold_y = 0.20
-
-#     if dx > threshold_x:
-#         return "Right"
-#     elif dx < -threshold_x:
-#         return "Left"
-
-#     if dy > threshold_y:
-#         return "Down"
-#     elif dy < -threshold_y:
-#         return "Up"
-
-#     return "Center"
-
-# # -------------------------------
-# # Main Program
-# # -------------------------------
-# def main():
-#     # cap = cv2.VideoCapture(0) ## Use 0 for default camera
-#     cap = cv2.VideoCapture("D:/Documents/Study/DADN/gaze_test.mp4")
-
-#     prev_gray = None
-#     prev_points = None
-#     flow_vectors = []
-#     last_direction = None
-
-#     while True:
-#         ret, frame = cap.read()
-#         if not ret:
-#             break
-
-#         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-#         # Step 1: Detect face
-#         faces = face_cascade.detectMultiScale(gray, 1.2, 4)
-
-#         for (x, y, w, h) in faces:
-#             cv2.rectangle(frame, (x, y), (x+w, y+h), (0,255,0), 2)
-
-#             roi_gray = gray[y:y+h, x:x+w]
-#             roi_color = frame[y:y+h, x:x+w]
-
-#             # Step 2: Detect eyes
-#             eyes = eye_cascade.detectMultiScale(roi_gray)
-
-#             for (ex, ey, ew, eh) in eyes:
-#                 cv2.rectangle(roi_color, (ex, ey), (ex+ew, ey+eh), (255,0,0), 2)
-
-#                 eye_gray = roi_gray[ey:ey+eh, ex:ex+ew]
-#                 eye_global_pos = (x+ex, y+ey)
-
-#                 # Step 3: Initialize good features to track (one time or re-init)
-#                 if prev_points is None:
-#                     points = cv2.goodFeaturesToTrack(
-#                         eye_gray,
-#                         maxCorners=50,
-#                         qualityLevel=0.3,
-#                         minDistance=3,
-#                         blockSize=3
-#                     )
-
-#                     if points is not None:
-#                         # Convert to global coordinates
-#                         prev_points = points + np.array([[eye_global_pos[0], eye_global_pos[1]]])
-
-#                         prev_gray = gray.copy()
-#                         continue
-
-#                 # Step 4: Optical Flow Tracking
-#                 if prev_points is not None and prev_gray is not None:
-
-#                     # Force float32 format
-#                     prev_points = prev_points.astype(np.float32)
-
-#                     if len(prev_points) == 0:
-#                         prev_points = None
-#                         prev_gray = gray.copy()
-#                         continue
-
-#                     # Calculate optical flow
-#                     new_points, status, _ = cv2.calcOpticalFlowPyrLK(
-#                         prev_gray, gray, prev_points, None, **lk_params
-#                     )
-
-#                     if new_points is None or status is None:
-#                         prev_points = None
-#                         prev_gray = gray.copy()
-#                         continue
-
-#                     good_new = new_points[status == 1]
-#                     good_old = prev_points[status == 1]
-
-#                     if len(good_new) == 0:
-#                         prev_points = None
-#                         prev_gray = gray.copy()
-#                         continue
-
-#                     flow_vectors = []
-
-#                     # Draw flow vectors
-#                     for (new, old) in zip(good_new, good_old):
-#                         a, b = new.ravel()
-#                         c, d = old.ravel()
-
-#                         flow_vectors.append([a - c, b - d])
-
-#                         cv2.arrowedLine(frame,
-#                                         (int(c), int(d)),
-#                                         (int(a), int(b)),
-#                                         (0,255,255), 2)
-
-#                     prev_points = good_new.reshape(-1, 1, 2)
-
-#                 prev_gray = gray.copy()
-
-#         # Step 5: Estimate eye direction
-#         direction = estimate_direction(flow_vectors)
-#         # print("Detected direction:", direction)
-#         if direction != last_direction:
-#             print(f"[Direction changed] → {direction}")
-#             last_direction = direction
-
-
-#         cv2.putText(frame, f"Direction: {direction}", (20,40),
-#                     cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,255,255), 2)
-
-#         cv2.imshow("Eye Tracking with Optical Flow", frame)
-
-#         if cv2.waitKey(1) & 0xFF == 27:  # ESC to quit
-#             break
-
-#     cap.release()
-#     cv2.destroyAllWindows()
-
-
-# if __name__ == "__main__":
-#     main()
-
-
-
-
-
-
-
-
-
-
-
 import cv2
 import numpy as np
 
@@ -257,8 +58,14 @@ def estimate_direction(vectors, threshold=0.8):
 # -------------------------------
 # MAIN PROGRAM
 # -------------------------------
+
+
+
 def main():
     global last_direction
+
+    frame_jitters = []
+    lost_frames = 0
 
     # cap = cv2.VideoCapture(0)  # webcam
     cap = cv2.VideoCapture("D:/Documents/Study/DADN/gaze_test.mp4")  # video file
@@ -340,6 +147,7 @@ def main():
 
                 # If too few points, force re-detect next frame
                 if len(good_new) < MIN_POINTS:
+                    lost_frames += 1
                     prev_points = None
                     prev_gray = gray.copy()
                     continue
@@ -352,6 +160,12 @@ def main():
                     c, d = old.ravel()
                     flow_vectors.append([a - c, b - d])
                     cv2.arrowedLine(frame, (int(c), int(d)), (int(a), int(b)), (0, 255, 0), 2)
+
+
+                if len(flow_vectors) > 0: ### CALCULATE JITTER
+                    mags = [np.linalg.norm(v) for v in flow_vectors]
+                    frame_jitters.append(np.mean(mags))
+
 
                 prev_points = good_new.reshape(-1, 1, 2)
 
@@ -378,6 +192,14 @@ def main():
             break
 
     cap.release()
+
+    if len(frame_jitters) > 0:
+        print("Optical Flow Jitter (mean px):", np.mean(frame_jitters))
+    stability = 1 - lost_frames / frame_count if frame_count > 0 else 0
+    print("Tracking stability:", stability)
+
+
+
     cv2.destroyAllWindows()
 
 
