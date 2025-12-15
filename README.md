@@ -88,9 +88,9 @@ Eye-Motion-Tracking/
 │
 ├── test videos (*.mp4)
 ├── README.md
-
+```
 ---
-▶️ How to Run
+## ▶️ How to Run
 1️⃣ Install Dependencies
 
 Make sure Python ≥ 3.8 is installed. Then install required libraries:
@@ -102,7 +102,7 @@ If you use a virtual environment, activate it before installing dependencies.
 
 2️⃣ Prepare Input Source
 
-You can run the system using either:
+There are 2 options to use the project:
 
 Webcam
 
@@ -137,11 +137,11 @@ Gaze direction estimation
 
 Quantitative evaluation (jitter & stability)
 
-🎥 Demo Videos
+## 🎥 Demo Videos
 
 🎬 Demo videos illustrating system performance are available at the following link:
 
-👉 Google Drive – Demo Videos (Click to View):
+👉 Google Drive – Demo Videos:
 https://drive.google.com/drive/folders/1hjI2Q5UmiDAs2vcX3wgf38wDBj49h3H5
 
 The demos include:
@@ -150,9 +150,7 @@ Haar-only eye tracking
 
 Haar + Optical Flow tracking
 
-Comparison under head movement and illumination changes
-
-⚠️ Limitations
+## ⚠️ Limitations
 
 Despite the improved stability achieved using Optical Flow, the system still has several limitations:
 
@@ -166,7 +164,7 @@ Optical Flow may drift over time and requires periodic re-initialization
 
 Performance degrades under large head rotations or occlusions
 
-🚀 Future Work
+## 🚀 Future Work
 
 Potential improvements and extensions include:
 
@@ -182,18 +180,18 @@ Replacing Haar cascades with deep learning–based detectors
 
 Extending the system to multi-face tracking
 
-📜 License
+## 📜 License
 
 This project is released for academic and research purposes only.
 
-👤 Author
+## 👤 Author
 
 Pham Le Huu Hiep
 Faculty of Computer Science
 Ho Chi Minh City University of Technology (HCMUT)
 Vietnam National University – Ho Chi Minh City
 
-⭐ Acknowledgements
+## ⭐ Acknowledgements
 
 OpenCV Library
 
