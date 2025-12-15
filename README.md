@@ -150,36 +150,6 @@ Haar-only eye tracking
 
 Haar + Optical Flow tracking
 
-## ⚠️ Limitations
-
-Despite the improved stability achieved using Optical Flow, the system still has several limitations:
-
-Haar cascades are sensitive to lighting variations and noise
-
-Only works reliably for near-frontal face orientations
-
-No explicit pupil or iris localization
-
-Optical Flow may drift over time and requires periodic re-initialization
-
-Performance degrades under large head rotations or occlusions
-
-## 🚀 Future Work
-
-Potential improvements and extensions include:
-
-Integrating facial landmark models (MediaPipe, Dlib)
-
-Adding pupil and iris segmentation for precise gaze estimation
-
-Applying Kalman filtering or temporal smoothing
-
-Incorporating head pose estimation
-
-Replacing Haar cascades with deep learning–based detectors
-
-Extending the system to multi-face tracking
-
 ## 📜 License
 
 This project is released for academic and research purposes only.
